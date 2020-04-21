@@ -3,18 +3,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Persistance;
 
 namespace Application.Acitivities
 {
     public class List
     {
-        public class Query : IRequest<List<Activity>> {}
+        public class Query : IRequest<List<Activity>> { }
 
         public class Handler : IRequestHandler<Query, List<Activity>>
         {
-            public Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            private readonly DataContext _context;
+            public Handler(DataContext context)
             {
-                throw new System.NotImplementedException();
+                this._context = context;
+            }
+
+            public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            {
+
+                var activities = await _context.Acitivities.ToListAsync();
+
+                return activities;
             }
         }
     }
