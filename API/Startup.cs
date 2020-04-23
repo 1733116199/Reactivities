@@ -10,6 +10,8 @@ using MediatR;
 using Application.Acitivities;
 using FluentValidation.AspNetCore;
 using API.Middleware;
+using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace API
 {
@@ -29,6 +31,9 @@ namespace API
             {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            // services.AddDefaultIdentity<AppUser>().AddEntityFrameworkStores<DataContext>();
+            
             services.AddCors((opt) => {
                 opt.AddPolicy("CorsPolicy", (policy) => {
                     policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
@@ -39,6 +44,12 @@ namespace API
                 .AddFluentValidation(cfg => {
                     cfg.RegisterValidatorsFromAssemblyContaining<Create>();
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            
+            var builder = services.AddIdentityCore<AppUser>();
+            var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+            identityBuilder.AddEntityFrameworkStores<DataContext>();
+            identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+            services.AddAuthentication();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
