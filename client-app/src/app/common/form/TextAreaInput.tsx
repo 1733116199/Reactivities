@@ -1,20 +1,21 @@
 import React from "react";
 import { FieldRenderProps } from "react-final-form";
-import { FormFieldProps, Form, Label } from "semantic-ui-react";
+import { FormFieldProps, Form, Label, TextArea } from "semantic-ui-react";
 
 interface IProps
   extends FieldRenderProps<string, HTMLElement>,
     FormFieldProps {}
 export const TextAreaInput: React.FC<IProps> = ({
-  input,
+  input:{value, ...rest},
   width,
   rows,
+  VALUE,
   placeholder,
   meta: { touched, error },
 }) => {
   return (
     <Form.Field error={touched && !!error} width={width}>
-      <textarea rows={rows} {...input} placeholder={placeholder} />
+      <TextArea rows={rows} {...rest} defaultValue={VALUE} placeholder={placeholder} />
       {touched && error && (
         <Label basic color="red">
           {error}

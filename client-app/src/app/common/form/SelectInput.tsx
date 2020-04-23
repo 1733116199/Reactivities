@@ -8,6 +8,7 @@ interface IProps
 
 export const SelectInput: React.FC<IProps> = ({
   input,
+  VALUE,
   width,
   options,
   placeholder,
@@ -16,7 +17,7 @@ export const SelectInput: React.FC<IProps> = ({
   return (
     <Form.Field error={touched && !!error} width={width}>
       <Select
-        value={input.value}
+        defaultValue={VALUE}
         onChange={(e, data) => input.onChange(data.value)}
         placeholder={placeholder}
         options={options}
