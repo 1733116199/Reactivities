@@ -58,9 +58,9 @@ class ActivityStore {
       this.loadingInitial = true;
       try {
         activity = await agent.Activities.details(id);
-        if(activity)
-          activity.date = activity.date.split(".")[0];
         runInAction("getting activity", () => {
+          if(activity)
+            activity.date = activity.date.split(".")[0];
           this.activity = activity;
           this.loadingInitial = false;
         });
