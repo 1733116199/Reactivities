@@ -2,6 +2,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Errors;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
 using MediatR;
@@ -31,25 +32,28 @@ namespace Application.User
         {
             private readonly UserManager<AppUser> _userManager;
             private readonly SignInManager<AppUser> _signInManager;
-            public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+            public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IJwtGenerator jwtGenerator)
             {
                 this._signInManager = signInManager;
                 this._userManager = userManager;
-
+                this._jwtGenerator = jwtGenerator;
             }
+            private readonly IJwtGenerator _jwtGenerator;
 
-            public async Task<User> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<User> Handle(Query request,
+            CancellationToken cancellationToken)
             {
                 var user = await _userManager.FindByEmailAsync(request.Email);
                 if (user == null)
                     throw new RestException(HttpStatusCode.Unauthorized);
                 var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-                if(result.Succeeded){
+                if (result.Succeeded)
+                {
                     //TODO: generate token
                     return new User()
                     {
                         DisplayName = user.DisplayName,
-                        Token = "This will be a token",
+                        Token = _jwtGenerator.CreateToken(user),
                         Username = user.UserName,
                         Image = null
                     };
