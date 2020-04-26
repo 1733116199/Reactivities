@@ -1,15 +1,16 @@
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Errors;
+using Application.Interfaces;
+using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistance;
 
-namespace Application.Acitivities
+namespace Application.Activities
 {
-    public class Edit
+    public class Create
     {
         public class Command : IRequest
         {
@@ -21,7 +22,7 @@ namespace Application.Acitivities
 
             public string Category { get; set; }
 
-            public DateTime? Date { get; set; }
+            public DateTime Date { get; set; }
 
             public string City { get; set; }
 
@@ -44,25 +45,41 @@ namespace Application.Acitivities
         public class Handler : IRequestHandler<Command>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUserAccessor _userAccessor;
+            public Handler(DataContext context, IUserAccessor userAccessor)
             {
+                this._userAccessor = userAccessor;
                 this._context = context;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var activity = await _context.Acitivities.FindAsync(request.Id);
+                var activity = new Activity
+                {
+                    Id = request.Id,
+                    Title = request.Title,
+                    Description = request.Description,
+                    Category = request.Category,
+                    Date = request.Date,
+                    City = request.City,
+                    Venue = request.Venue
+                };
 
-                if (activity == null)
-                    throw new RestException(HttpStatusCode.NotFound, new { activity = "Not found" });
+                _context.Activities.Add(activity);
 
+                var user = await _context.Users.SingleOrDefaultAsync(
+                    x => x.UserName == _userAccessor.GetCurrentUsername()
+                );
 
-                activity.Title = request.Title ?? activity.Title;
-                activity.Description = request.Description ?? activity.Description;
-                activity.Category = request.Category ?? activity.Category;
-                activity.Date = request.Date ?? activity.Date;
-                activity.City = request.City ?? activity.City;
-                activity.Venue = request.Venue ?? activity.Venue;
+                var attendee = new UserActivity
+                {
+                    AppUser = user,
+                    Activity = activity,
+                    IsHost = true,
+                    DateJoined = DateTime.Now
+                };
+
+                _context.UserActivities.Add(attendee);
 
                 var success = await _context.SaveChangesAsync() > 0;
                 if (success) return Unit.Value;

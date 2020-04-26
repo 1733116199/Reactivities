@@ -20,9 +20,9 @@ namespace Persistance.Migrations
                 {
                     table.PrimaryKey("PK_UserActivities", x => new { x.AppUserId, x.ActivityId });
                     table.ForeignKey(
-                        name: "FK_UserActivities_Acitivities_ActivityId",
+                        name: "FK_UserActivities_Activities_ActivityId",
                         column: x => x.ActivityId,
-                        principalTable: "Acitivities",
+                        principalTable: "Activities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(

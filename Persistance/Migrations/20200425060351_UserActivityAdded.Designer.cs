@@ -44,7 +44,7 @@ namespace Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Acitivities");
+                    b.ToTable("Activities");
                 });
 
             modelBuilder.Entity("Domain.AppUser", b =>

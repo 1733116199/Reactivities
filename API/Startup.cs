@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Persistance;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
-using Application.Acitivities;
+using Application.Activities;
 using FluentValidation.AspNetCore;
 using API.Middleware;
 using Domain;

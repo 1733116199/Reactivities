@@ -11,7 +11,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistance;
 
-namespace Application.Acitivities
+namespace Application.Activities
 {
     public class Details
     {
@@ -32,7 +32,7 @@ namespace Application.Acitivities
             public async Task<ActivityDto> Handle(Query request, CancellationToken cancellationToken)
             {
 
-                var activity = await _context.Acitivities
+                var activity = await _context.Activities
                 .FindAsync(request.Id);
 
                 if (activity == null)

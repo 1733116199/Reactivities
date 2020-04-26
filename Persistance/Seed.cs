@@ -45,7 +45,7 @@ namespace Persistance
                 }
             }
 
-            if (!context.Acitivities.Any())
+            if (!context.Activities.Any())
             {
                 var activities = new List<Activity>
                 {
@@ -279,7 +279,7 @@ namespace Persistance
                     }
                 };
 
-                await context.Acitivities.AddRangeAsync(activities);
+                await context.Activities.AddRangeAsync(activities);
                 await context.SaveChangesAsync();
             }
         }
