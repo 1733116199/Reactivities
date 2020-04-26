@@ -33,17 +33,13 @@ namespace Application.Acitivities
             {
 
                 var activity = await _context.Acitivities
-                .Include(x => x.UserActivities)
-                .ThenInclude(x => x.AppUser)
-                .SingleOrDefaultAsync(x => x.Id == request.Id);
+                .FindAsync(request.Id);
 
                 if (activity == null)
                     throw new RestException(HttpStatusCode.NotFound, new { activity = "Not found" });
 
                 var activityToReturn = _mapper.Map<Activity, ActivityDto>(activity);
-                // var temp = _mapper.Map<UserActivity, AttendeeDto>(activity.UserActivities.FirstOrDefault());
-                // activityToReturn.UserActivities.Add(temp);
-                Console.WriteLine(activityToReturn.UserActivities.Count());
+                
                 return activityToReturn;
             }
         }

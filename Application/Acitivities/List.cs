@@ -27,8 +27,6 @@ namespace Application.Acitivities
             {
 
                 var activities = await _context.Acitivities
-                .Include(x => x.UserActivities)
-                .ThenInclude(x => x.AppUser)
                 .ToListAsync();
 
                 return _mapper.Map<List<Activity>, List<ActivityDto>>(activities);
