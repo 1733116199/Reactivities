@@ -25,10 +25,7 @@ const ProfileEditForm: React.FC<IProps> = ({ setEditProfileMode }) => {
   };
   return (
     <FinalForm
-      initialValues={{
-        displayName: profile?.displayName,
-        bio: profile?.bio,
-      }}
+      initialValues={profile}
       validate={validate}
       onSubmit={handleSubmit}
       render={({ handleSubmit, invalid, pristine }) => (
