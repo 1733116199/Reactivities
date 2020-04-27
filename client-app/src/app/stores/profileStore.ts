@@ -1,6 +1,6 @@
 import { RootStore } from "./rootStore";
 import { observable, action, runInAction, computed } from "mobx";
-import { IProfile, IPhoto } from "../models/profile";
+import { IProfile, IPhoto, IProfileFormValues } from "../models/profile";
 import agent from "../api/agent";
 import { toast } from "react-toastify";
 
@@ -14,6 +14,7 @@ export default class ProfileStore {
   @observable loadingProfile = true;
   @observable uploadingPhoto = false;
   @observable loading = false;
+  @observable editProfileLoading = false;
 
   @computed get isCurrentUser() {
     if (this.rootStore.userStore.user && this.profile) {
@@ -95,6 +96,23 @@ export default class ProfileStore {
       });
       console.log(err);
       toast.error("Problem deleting the photo");
+    }
+  }
+
+  @action editProfile = async (profile: IProfileFormValues) => {
+    this.editProfileLoading = true;
+    try{
+      await agent.Profiles.editProfile(profile);
+      runInAction(() => {
+        this.rootStore.userStore.user!.displayName = profile.displayName;
+        this.profile!.displayName = profile.displayName;
+        this.profile!.bio = profile.bio;
+        this.editProfileLoading = false;
+      })
+    }catch(err){
+      runInAction(() => this.editProfileLoading = false)
+      console.log(err);
+      toast.error("Problem editing the profile");
     }
   }
 }
