@@ -24,6 +24,7 @@ using Infrastructure.Photos;
 using API.SignalR;
 using System.Threading.Tasks;
 using Application.Profiles;
+using System;
 
 namespace API
 {
@@ -53,6 +54,7 @@ namespace API
                     builder.SetIsOriginAllowed(_ => true)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
+                    .WithExposedHeaders("WWW-Authenticate")
                     .AllowCredentials());
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
@@ -91,7 +93,9 @@ namespace API
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = key,
                     ValidateAudience = false,
-                    ValidateIssuer = false
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
 
                 opt.Events = new JwtBearerEvents
