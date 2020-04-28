@@ -6,7 +6,7 @@ import ProfileEditForm from "./ProfileEditForm";
 
 const ProfileDescription = () => {
   const rootStore = useContext(RootStoreContext);
-  const { user } = rootStore.userStore;
+  const { profile, isCurrentUser } = rootStore.profileStore;
   const [editProfileMode, setEditProfileMode] = useState(false);
   return (
     <Tab.Pane>
@@ -15,14 +15,14 @@ const ProfileDescription = () => {
           <Header
             floated="left"
             icon="user"
-            content={`About ${user?.displayName}`}
+            content={`About ${profile?.displayName}`}
           />
-          <Button
+          {isCurrentUser && <Button
             floated="right"
             basic
             onClick={() => setEditProfileMode(!editProfileMode)}
             content={editProfileMode ? "Cancel" : "Edit Profile"}
-          />
+          />}
         </Grid.Column>
         {editProfileMode && <Grid.Column width={16}>
             <ProfileEditForm setEditProfileMode={setEditProfileMode}/>
