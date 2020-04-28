@@ -20,13 +20,13 @@ export default class ActivityStore {
     this.rootStore = rootStore;
 
     reaction(
-      ()=>this.predicate.keys(), 
+      () => this.predicate.keys(),
       () => {
         this.page = 0;
         this.activityRegistry.clear();
         this.loadActivities();
       }
-    )
+    );
   }
 
   @observable activityRegistry = new Map();
@@ -42,22 +42,22 @@ export default class ActivityStore {
 
   @action setPredicate = (predicate: string, value: string | Date) => {
     this.predicate.clear();
-    if(predicate !== 'all') {
+    if (predicate !== "all") {
       this.predicate.set(predicate, value);
     }
-  }
+  };
 
   @computed get axiosParams() {
     const params = new URLSearchParams();
-    params.append('limit', String(LIMIT));
-    params.append('offset', `${this.page ? this.page * LIMIT : 0}`);
+    params.append("limit", String(LIMIT));
+    params.append("offset", `${this.page ? this.page * LIMIT : 0}`);
     this.predicate.forEach((value, key) => {
-      if(key === 'startDate'){
-        params.append(key, value.toISOString())
-      }else{
-        params.append(key, value)
+      if (key === "startDate") {
+        params.append(key, value.toISOString());
+      } else {
+        params.append(key, value);
       }
-    })
+    });
     return params;
   }
 
@@ -71,9 +71,10 @@ export default class ActivityStore {
 
   @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(`http://${window.location.hostname}:5000/chat`, {
+      .withUrl(process.env.REACT_APP_API_CHAT_URL!, {
         accessTokenFactory: () => this.rootStore.commonStore.token!,
       })
+      .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
 
@@ -82,7 +83,9 @@ export default class ActivityStore {
       .then(() => console.log(this.hubConnection!.state))
       .then(() => {
         console.log("Attempting to join group");
-        this.hubConnection!.invoke("AddToGroup", activityId);
+        if (this.hubConnection && this.hubConnection.state === "Connected") {
+          this.hubConnection!.invoke("AddToGroup", activityId);
+        }
       })
       .catch((err) => console.log("Error establishing connection: ", err));
 
