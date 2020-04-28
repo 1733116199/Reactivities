@@ -26,7 +26,7 @@ export default class ActivityStore {
   @observable loading = false;
   @observable.ref hubConnection: HubConnection | null = null;
 
-  @action createHubConnection = () => {
+  @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(`http://${window.location.hostname}:5000/chat`, {
         accessTokenFactory: () => this.rootStore.commonStore.token!,
@@ -37,26 +37,35 @@ export default class ActivityStore {
     this.hubConnection
       .start()
       .then(() => console.log(this.hubConnection!.state))
+      .then(() => {
+        console.log('Attempting to join group');
+        this.hubConnection!.invoke('AddToGroup', activityId);
+      })
       .catch((err) => console.log("Error establishing connection: ", err));
 
     this.hubConnection.on("ReceiveComment", (comment) => {
-      this.activity!.comments.push(comment);
+      runInAction(() => this.activity!.comments.push(comment));
+    });
+
+    this.hubConnection.on("Send", message => {
+      toast.info(message);
     });
   };
 
-  @action stopHubConnection() {
-    this.hubConnection!.stop();
+  @action stopHubConnection = () => {
+    this.hubConnection!.invoke("RemoveFromGroup", this.activity!.id)
+    .then(() => this.hubConnection!.stop())
+    .then(() => console.log('Connection stopped')).catch(err => console.log);
   }
 
   @action addComment = async (values: any) => {
     values.activityId = this.activity!.id;
-    try{
-      await this.hubConnection!.invoke('SendComment', values);
-    }catch(err){
+    try {
+      await this.hubConnection!.invoke("SendComment", values);
+    } catch (err) {
       console.log(err);
-      
     }
-  }
+  };
 
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
@@ -145,6 +154,7 @@ export default class ActivityStore {
       const attendee = createAttendee(this.rootStore.userStore.user!);
       attendee.isHost = true;
       activity.attendees = [attendee];
+      activity.comments = [];
       activity.isHost = true;
 
       runInAction("creating activity", () => {
