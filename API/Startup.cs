@@ -25,6 +25,7 @@ using API.SignalR;
 using System.Threading.Tasks;
 using Application.Profiles;
 using System;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace API
 {
@@ -37,14 +38,37 @@ namespace API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>((opt) =>
             {
                 opt.UseLazyLoadingProxies();
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                // opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"), mySqlOptions => mySqlOptions
+                //                     // replace with your Server Version and Type
+                //                     .ServerVersion(new Version(8, 0, 20), ServerType.MySql));
             });
+
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>((opt) =>
+            {
+                opt.UseLazyLoadingProxies();
+                opt.UseMySql(Configuration.GetConnectionString("DefaultConnection"), mySqlOptions => mySqlOptions
+                    // replace with your Server Version and Type
+                    .ServerVersion(new Version(8, 0, 20), ServerType.MySql));
+            });
+
+            ConfigureServices(services);
+        }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+
 
             // services.AddDefaultIdentity<AppUser>().AddEntityFrameworkStores<DataContext>();
 
