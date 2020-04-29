@@ -40,6 +40,7 @@ namespace API
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
         {
+                Console.WriteLine("development \n\n\n\n\n");
             services.AddDbContext<DataContext>((opt) =>
             {
                 opt.UseLazyLoadingProxies();
@@ -54,6 +55,7 @@ namespace API
 
         public void ConfigureProductionServices(IServiceCollection services)
         {
+                Console.WriteLine("production \n\n\n\n\n");
             services.AddDbContext<DataContext>((opt) =>
             {
                 opt.UseLazyLoadingProxies();
